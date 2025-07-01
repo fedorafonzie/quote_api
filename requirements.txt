@@ -1,0 +1,5 @@
+# quote_api/requirements.txt
+
+django
+djangorestframework
+psycopg2-binary

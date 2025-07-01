@@ -1,0 +1,17 @@
+# quote_api/docker-compose.yml
+
+version: "3.9"
+services:
+  api:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "8001:8000" # We gebruiken poort 8001 om conflicten met de scraper te voorkomen
+    environment:
+      # We verwijzen naar dezelfde database-credentials
+      POSTGRES_DB: myquoteproject_db
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_HOST: host.docker.internal # Speciale waarde om de host machine (en dus de andere container) te bereiken
