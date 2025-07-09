@@ -16,11 +16,9 @@ Including another URLconf
 """
 # quote_api/core/urls.py
 from django.contrib import admin
-from django.urls import path, include  # 'include' moet geïmporteerd zijn
+from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    
-    # Deze regel vertelt het hoofdsorteercentrum om door te sturen
-    path('api/quotes/', include('quotes_app.urls')),
+    path('api/', include('quotes_app.urls')), # Alle API-urls beginnen met /api/
 ]

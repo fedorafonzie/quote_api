@@ -1,5 +1,6 @@
 # django_app/quotes_app/models.py
 from django.db import models
+from django.utils.text import slugify
 
 class Category(models.Model):
     name = models.CharField(max_length=255, unique=True)
@@ -24,11 +25,11 @@ class Source(models.Model):
 class Quote(models.Model):
     text = models.TextField()
     author = models.ForeignKey(Author, on_delete=models.SET_NULL, null=True, blank=True)
-    
-    # --- EN HET AANGEPASTE VELD ---
     source = models.ForeignKey(Source, on_delete=models.SET_NULL, null=True, blank=True, related_name='quotes')
     
-    categories = models.ManyToManyField(Category, related_name='quotes')
+    # DE FIX: Voeg blank=True toe om dit veld optioneel te maken in de admin
+    categories = models.ManyToManyField(Category, related_name='quotes', blank=True)
+    
     added_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
