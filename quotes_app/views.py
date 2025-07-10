@@ -19,7 +19,7 @@ from .filters import QuoteFilter
  #   filterset_fields = ['source'] # Dit filtert op de ID van de source
  #   search_fields = ['text', 'author__name']
     
-class QuoteListView(generics.ListAPIView):
+class QuoteListView(generics.ListCreateAPIView):
     queryset = Quote.objects.all().order_by('id')
     serializer_class = QuoteSerializer
     pagination_class = StandardResultsSetPagination # <-- VOEG DEZE REGEL TOE
@@ -61,7 +61,7 @@ class QuoteSubmitView(generics.CreateAPIView):
             return Response({"error": "reCAPTCHA token is missing."}, status=status.HTTP_400_BAD_REQUEST)
 
         data = {
-            'secret': 'UW_SECRET_KEY_HIER', # Gebruik dezelfde Secret Key als in settings.py
+            'secret': '6LeXOH0rAAAAALJ6iomhc2x2E8zuNHdqAjcojNSm', # Gebruik dezelfde Secret Key als in settings.py
             'response': recaptcha_response
         }
         r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=data)
