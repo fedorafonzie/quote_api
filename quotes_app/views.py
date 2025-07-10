@@ -5,6 +5,7 @@ from .models import Quote, Source, Author, Category # Zorg dat alles geïmportee
 from .serializers import QuoteSerializer, SourceSerializer # Zorg dat beide serializers geïmporteerd zijn
 import random
 import requests
+from django.conf import settings
 from django.shortcuts import get_object_or_404
 from .pagination import StandardResultsSetPagination # Importeer
 from .filters import QuoteFilter
@@ -26,6 +27,7 @@ class QuoteListView(generics.ListCreateAPIView):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['source']
     search_fields = ['text', 'author__name']    
+
 
 # View voor de lijst met alle bronnen/categorieën
 class SourceListView(generics.ListAPIView):
@@ -55,20 +57,22 @@ class QuoteSubmitView(generics.CreateAPIView):
     serializer_class = QuoteSerializer
 
     def create(self, request, *args, **kwargs):
-        # 1. Valideer de reCAPTCHA token
+        # --- DE FIX: reCAPTCHA validatie ---
         recaptcha_response = request.data.get('g-recaptcha-response')
         if not recaptcha_response:
-            return Response({"error": "reCAPTCHA token is missing."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"detail": "reCAPTCHA token is missing."}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Valideer de token bij Google
         data = {
-            'secret': '6LeXOH0rAAAAALJ6iomhc2x2E8zuNHdqAjcojNSm', # Gebruik dezelfde Secret Key als in settings.py
+            'secret': settings.RECAPTCHA_SECRET_KEY, # Haal de sleutel uit settings.py
             'response': recaptcha_response
         }
         r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=data)
         result = r.json()
 
         if not result.get('success'):
-            return Response({"error": "Invalid reCAPTCHA. Please try again."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "Invalid reCAPTCHA. Please try again."}, status=status.HTTP_400_BAD_REQUEST)
+        # --- EINDE FIX ---
 
-        # 2. Als reCAPTCHA geldig is, ga verder met het opslaan van de quote
+        # Als de check slaagt, gaat de normale 'create' logica verder
         return super().create(request, *args, **kwargs)
